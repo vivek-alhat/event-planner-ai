@@ -14,35 +14,7 @@ import datetime
 import sys
 import os
 
-st.set_page_config(layout="wide")
-
-# --- Force sidebar open and set width to 25% ---
-sidebar_js_css = '''
-    <style>
-        /* Set sidebar width to 25% of the screen */
-        section[data-testid="stSidebar"] {
-            min-width: 350px !important;
-            width: 25vw !important;
-            max-width: 400px !important;
-        }
-        /* Adjust main content to accommodate sidebar */
-        section[data-testid="stSidebar"] ~ div[data-testid="stAppViewContainer"] > div:first-child {
-            margin-left: 25vw !important;
-        }
-    </style>
-    <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
-            if (sidebar) {
-                sidebar.style.transform = 'none'; // Uncollapse sidebar if collapsed
-            }
-            // Also try to click the hamburger if present
-            const hamburger = window.parent.document.querySelector('button[title="Open sidebar"]');
-            if (hamburger) { hamburger.click(); }
-        });
-    </script>
-'''
-st.markdown(sidebar_js_css, unsafe_allow_html=True)
+st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 
 
 def icon(emoji: str):
