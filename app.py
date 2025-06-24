@@ -16,6 +16,34 @@ import os
 
 st.set_page_config(layout="wide")
 
+# --- Force sidebar open and set width to 25% ---
+sidebar_js_css = '''
+    <style>
+        /* Set sidebar width to 25% of the screen */
+        section[data-testid="stSidebar"] {
+            min-width: 350px !important;
+            width: 25vw !important;
+            max-width: 400px !important;
+        }
+        /* Adjust main content to accommodate sidebar */
+        section[data-testid="stSidebar"] ~ div[data-testid="stAppViewContainer"] > div:first-child {
+            margin-left: 25vw !important;
+        }
+    </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
+            if (sidebar) {
+                sidebar.style.transform = 'none'; // Uncollapse sidebar if collapsed
+            }
+            // Also try to click the hamburger if present
+            const hamburger = window.parent.document.querySelector('button[title="Open sidebar"]');
+            if (hamburger) { hamburger.click(); }
+        });
+    </script>
+'''
+st.markdown(sidebar_js_css, unsafe_allow_html=True)
+
 
 def icon(emoji: str):
     """Shows an emoji as a Notion-style page icon."""
@@ -240,6 +268,7 @@ if __name__ == "__main__":
             st.markdown("## 🎊 Your Complete Event Plan")
         # Convert result to string for download and display
         result_str = str(result)
+        st.session_state["event_plan_result"] = result_str  # Persist in session state
         with col2:
             if st.download_button(
                 label="Download",
@@ -251,7 +280,6 @@ if __name__ == "__main__":
         
         # Display the plan with enhanced formatting
         try:
-            # Try to format the result better if it's structured
             if isinstance(result, str) and result.strip():
                 st.markdown(result_str)
             else:
@@ -259,3 +287,18 @@ if __name__ == "__main__":
         except Exception as e:
             st.error(f"Error displaying the plan: {str(e)}")
             st.text_area("Raw Plan Output:", value=result_str, height=400)
+
+    # If not submitted, but a plan exists in session_state, show it
+    elif "event_plan_result" in st.session_state:
+        st.markdown("---")
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            st.markdown("## 🎊 Your Complete Event Plan")
+        with col2:
+            st.download_button(
+                label="Download",
+                data=st.session_state["event_plan_result"],
+                file_name="event_plan.md",
+                mime="text/markdown"
+            )
+        st.markdown(st.session_state["event_plan_result"])
